@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<style>
+    #myCanvas {
+        border: 5px solid black;
+        background-size: 100%;
+    }
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+
+<body onload="" bgcolor="lightblue">
+    
+    <center><h1>lol<br><img src="./images/black_pawn.png" height=60 width=60></h1></center>
+    <center><canvas id="myCanvas" width="480" height="480"></canvas></center>
+    
+</body>
+
+<script> 
+    let cnv = document.getElementById("myCanvas");
+    let ctx = cnv.getContext("2d");
+
+    function draw(){
+        for(var x = 0; x < 8; x++){
+            for (var y=0; y < 8; y++){
+                
+                if ((x+y)%2 == 0){
+                    ctx.fillStyle = "black";
+                    ctx.fillRect(TILESIZE*x, TILESIZE*y, TILESIZE, TILESIZE);
+                }
+            }
+        }
+    }
+    const CNVSIZE = cnv.height;
+    if (CNVSIZE != cnv.width){
+        throw new Error("Canvas must be a square");
+    }
+    TILESIZE = CNVSIZE/8;
+
+    draw(TILESIZE);
+    
+
+    // want 2 chessboards. one for moves and one to think about moves.
+    class chessBoard{
+        constructor(game){        
+            let tiles = new Array(8);
+            this.game = game;
+            this.tiles = tiles;
+            for (let i = 0; i < 8; i++){
+                this.tiles[i] = new Array(8);
+            }
+            for (let i = 0; i < 8; i++){
+                for (let j = 0; j < 8; j++){
+                    tiles[i][j] = new Tile(i,j);
+                    
+                }
+            }
+        }
+        getTile(x,y){
+            if (0 <= x && x < 8 && 0 <= y && y < 8){
+                return this.tiles[x][y];
+            } else {
+                return null;
+            }
+        }
+        
+    }
+    
+    class Tile {
+        constructor(x,y){
+            this.x = x;
+            this.y = y;
+            this.occupant = null;
+            this.selected = null;
+        }
+        setOccupant(gamePiece){
+            this.occupant = gamePiece;
+        }
+        getOccupant(){
+            return this.occupant;
+        }
+
+    }
+
+    class ChessGame {
+        constructor(){
+            this.whiteTeam = new Team(this, 1);
+            this.blackTeam = new Team(this, 2);
+            this.gameBoard = new chessBoard(this);
+            this.shadowBoard = new chessBoard(this);
+
+            this.setBoard(this.shadowBoard);
+        }
+
+        copyBoardState(){
+            let copyTiles = this.shadowBoard.tiles;
+            this.gameBoard.tiles = copyTiles;
+            console.log('pretty cool');
+        }
+
+        setBoard(chessBoard){
+            // place pawns
+            for (let i = 0; i < 8; i++){
+                this.whiteTeam.pawns[i].moveTo(this.shadowBoard, i, 6);
+            }
+            for (let i = 0; i < 8; i++){
+                this.blackTeam.pawns[i].moveTo(this.shadowBoard, i, 1);
+            }
+            // place rooks
+            this.whiteTeam.rooks[0].moveTo(this.shadowBoard, 0, 7);
+            this.whiteTeam.rooks[1].moveTo(this.shadowBoard, 7, 7);
+            this.blackTeam.rooks[0].moveTo(this.shadowBoard, 0, 0);
+            this.blackTeam.rooks[1].moveTo(this.shadowBoard, 7, 0);
+
+            // place knights
+            this.whiteTeam.knights[0].moveTo(this.shadowBoard, 1, 7);
+            this.whiteTeam.knights[1].moveTo(this.shadowBoard, 6, 7);
+            this.blackTeam.knights[0].moveTo(this.shadowBoard, 1, 0);
+            this.blackTeam.knights[1].moveTo(this.shadowBoard, 6, 0);
+
+            // place bishops
+            this.whiteTeam.bishops[0].moveTo(this.shadowBoard, 2, 7);
+            this.whiteTeam.bishops[1].moveTo(this.shadowBoard, 5, 7);
+            this.blackTeam.bishops[0].moveTo(this.shadowBoard, 2, 0);
+            this.blackTeam.bishops[1].moveTo(this.shadowBoard, 5, 0);
+
+            // place queen
+            this.whiteTeam.queen.moveTo(this.shadowBoard, 3, 7);
+            this.blackTeam.queen.moveTo(this.shadowBoard, 3, 0);
+
+            // place king
+            this.whiteTeam.king.moveTo(this.shadowBoard, 4, 7);
+            this.blackTeam.king.moveTo(this.shadowBoard, 4, 0);
+
+            this.copyBoardState();
+            
+        }
+        
+        
+    }
+
+    class Team {
+        constructor(game, playerNum){
+            this.game = game;
+            this.player = playerNum;
+            this.king = new King(this, game);
+            this.queen = new Queen(this, game);
+            this.rooks = Array(2);
+            this.bishops = Array(2);
+            this.knights = Array(2);
+            this.pawns = Array(8);
+            
+            let i;
+            
+            for (i = 0; i < this.rooks.length; i++){
+                this.rooks[i] = new Rook(this, game);
+            }
+            for (i = 0; i < this.bishops.length; i++){
+                this.bishops[i] = new Bishop(this, game);
+            }
+            for (i = 0; i < this.knights.length; i++){
+                this.knights[i] = new Knight(this, game);
+            }
+            for (i = 0; i < this.pawns.length; i++){
+                this.pawns[i] = new Pawn(this, game);
+            } 
+        }
+    }
+
+    class gamePiece {
+        constructor(team){
+            let x = -1;
+            let y = -1;
+            
+            this.x = x;
+            this.y = y;
+            this.team = team;
+            this.active = true;
+            this.moved = false;
+            
+        }
+        
+        moveTo (chessBoard,x,y) {
+            const curTile = chessBoard.getTile(this.x,this.y);
+            if (curTile) {
+                curTile.setOccupant(null);
+            }
+            this.x = x;
+            this.y = y;
+            const tile = chessBoard.getTile(x,y);
+            tile.setOccupant(this);
+            return 1;
+
+        }
+    }
+
+    class Pawn extends gamePiece {
+        constructor(team){
+            super(team);
+            if (this.team.player === 1){   // white team
+                this.img = new Image();
+                this.img.src = './images/white_pawn.png';
+            }
+            else {   // black team
+                this.img = new Image();
+                this.img.src = './images/black_pawn.png';
+            }
+        }
+    }
+    
+    class Bishop extends gamePiece {
+        constructor(team) {
+            super(team);
+            if (this.team.player === 1){   // white team
+                this.img = new Image();
+                this.img.src = './images/white_bishop.png';
+            }
+            else {   // black team
+                this.img = new Image();
+                this.img.src = './images/black_bishop.png';
+            }
+        }
+    }
+    
+    class Knight extends gamePiece {
+        constructor(team) {
+            super(team);
+            if (this.team.player === 1){   // white team
+                this.img = new Image();
+                this.img.src = './images/white_knight.png';
+            }
+            else {   // black team
+                this.img = new Image();
+                this.img.src = './images/black_knight.png';
+            }
+        }
+    }
+    
+    class Rook extends gamePiece {
+        constructor(team){
+            super(team);
+            if (this.team.player === 1){   // white team
+                this.img = new Image();
+                this.img.src = './images/white_rook.png';
+            }
+            else {   // black team
+                this.img = new Image();
+                this.img.src = './images/black_rook.png';
+            }
+        }
+    }
+    
+    class King extends gamePiece {
+        constructor(team){
+            super(team);
+            if (this.team.player === 1){   // white team
+                this.img = new Image();
+                this.img.src = './images/white_king.png';
+            }
+            else {   // black team
+                this.img = new Image();
+                this.img.src = './images/black_king.png';
+            }
+        }
+    }
+    
+    class Queen extends gamePiece {
+        constructor(team){
+            super(team);
+            if (this.team.player === 1){   // white team
+                this.img = new Image();
+                this.img.src = './images/white_queen.png';
+            }
+            else {   // black team
+                this.img = new Image();
+                this.img.src = './images/black_queen.png';
+            }
+        }
+    }
+    
+    game = new ChessGame();
+    let X = game.gameBoard.tiles.length;
+    let Y = game.gameBoard.tiles.length;
+    let HOVERTILE = null;
+    document.addEventListener("mousemove", mouseMoveHandler, false);
+    setInterval(update);
+
+    function mouseMoveHandler(e) {
+        let mx = e.clientX - cnv.offsetLeft;
+        let my = e.clientY - cnv.offsetTop;
+        if ((0 < mx && mx < cnv.width) && (0 < my && my < 480)){
+            HOVERTILE = game.gameBoard.getTile(Math.floor(mx/TILESIZE), Math.floor(my/TILESIZE));
+        }
+        else {
+            HOVERTILE = null;
+        }
+    }
+
+    function update() {
+        ctx.clearRect(0, 0, cnv.width, cnv.height);
+        for(var x = 0; x < X; x++){
+            for (var y=0; y < Y; y++){
+                //console.log('yeahhh')
+                let curTile = game.gameBoard.getTile(x,y);
+                let gamePiece = curTile.getOccupant();
+                
+                if ((x+y)%2 != 0){
+                    ctx.fillStyle = "black";
+                    ctx.fillRect(TILESIZE*x, TILESIZE*y, TILESIZE, TILESIZE);
+                }
+                if (HOVERTILE){
+                    ctx.beginPath();
+                    ctx.strokeStyle = "red";
+                    ctx.rect(TILESIZE*HOVERTILE.x, TILESIZE*HOVERTILE.y, TILESIZE, TILESIZE);
+                    ctx.stroke();
+                }
+                if (gamePiece){
+                    ctx.drawImage(gamePiece.img, TILESIZE*gamePiece.x, TILESIZE*gamePiece.y, TILESIZE, TILESIZE)
+                }
+                
+            }
+        }
+    }
+    
+</script>
+
+
+</html>
+
+<!-- we will render the game in the canvas and write the code that controls it in the script -->
+
+
