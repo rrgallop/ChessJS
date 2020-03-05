@@ -73,8 +73,14 @@
     }
     function mouseOnRelease(e){
         if (HELD_UNIT){
+            if (HELD_UNIT.moves.includes(HOVERTILE)){
+                HELD_UNIT.moveTo(game.gameBoard, HOVERTILE.x, HOVERTILE.y);
+                HELD_UNIT.hasMoved = true;
+                game.turnOver = true;
+            }
             HELD_UNIT.isHeld = false;
             HELD_UNIT = null;
+            
         }
     }
 
@@ -84,7 +90,11 @@
 
     // gaem loop
     function update() {
-        ctx.clearRect(0, 0, cnv.width, cnv.height);
+        //ctx.clearRect(0, 0, cnv.width, cnv.height);
+        if (game.turnOver){
+            game.turnOver = false;
+            game.nextTurn();
+        }
         for(var x = 0; x < X; x++){
             for (var y=0; y < Y; y++){
                 //console.log('yeahhh')
@@ -100,7 +110,7 @@
                 }
                 if (HOVERTILE){
                     ctx.beginPath();
-                    
+                    ctx.lineWidth = 1;
                     ctx.strokeStyle = "red";
                     ctx.rect(TILESIZE*HOVERTILE.x, TILESIZE*HOVERTILE.y, TILESIZE, TILESIZE);
                     ctx.stroke();
@@ -110,20 +120,19 @@
                     if (!gamePiece.isHeld) {
                         ctx.drawImage(gamePiece.img, TILESIZE*gamePiece.x, TILESIZE*gamePiece.y, TILESIZE, TILESIZE);
                     }
-                    if (gamePiece.moves.length) {
-                        
-                        //for (let i = 0; i < gamePiece.moves.length; i++){
-                        //    let m = gamePiece.moves[i];
-                        //    ctx.beginPath();
-                        //    ctx.lineWidth = 5;
-                        //    ctx.strokeStyle = "green";
-                        //    ctx.rect(TILESIZE*m.x, TILESIZE*m.y, TILESIZE, TILESIZE);
-                        //    ctx.stroke();
-                        //}
-                    }
+
                 }
                 if (HELD_UNIT) {
                     ctx.drawImage(HELD_UNIT.img, mx, my, TILESIZE, TILESIZE);
+                    for (let i = 0; i < HELD_UNIT.moves.length; i++){
+                        let m = HELD_UNIT.moves[i];
+                        ctx.beginPath();
+                        ctx.lineWidth = 3;
+                        ctx.strokeStyle = "green";
+                        ctx.rect(TILESIZE*m.x, TILESIZE*m.y, TILESIZE, TILESIZE);
+                        ctx.stroke();
+                        ctx.closePath();
+                    }
                 }
                 
             }

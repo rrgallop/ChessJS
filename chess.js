@@ -7,6 +7,7 @@ class ChessGame {
         this.gameBoard = new chessBoard(this);
         this.shadowBoard = new chessBoard(this);
         this.whitesTurn = true;
+        this.turnOver = false;
         this.setBoard(this.shadowBoard);
     }
 
@@ -53,12 +54,25 @@ class ChessGame {
         this.copyBoardState();
     }
 
+    nextTurn(){
+        if (this.whitesTurn){
+            this.whitesTurn = false;
+            this.whiteTeam.clearMoves();
+            this.blackTeam.getAllMoves();
+        }
+        else {
+            this.whitesTurn = true;
+            this.blackTeam.clearMoves();
+            this.whiteTeam.getAllMoves();
+        }
+    }
+
     // send move to shadowboard. shadowboard will make the move, then calculate the movesets of the opposing team.
     // if the king is not present in any of those movesets, then the move is viable, return true.
     // else, if the king is ever added to a moveset of the opposing team, return false, we can't make the move
     // should also return false if a move falls outside the chessboard
     isViableMove(x, y){
-        let gotTile = this.gameBoard.getTile(x,y)
+        let gotTile = this.gameBoard.getTile(x,y);
         return gotTile;
     }
     
@@ -90,6 +104,34 @@ class Team {
         for (i = 0; i < this.pawns.length; i++){
             this.pawns[i] = new Pawn(this, game);
         } 
+    }
+
+    getAllMoves(){
+        this.king.getMoves();
+        this.queen.getMoves();
+        this.rooks[0].getMoves();
+        this.rooks[1].getMoves();
+        this.bishops[0].getMoves();
+        this.bishops[1].getMoves();
+        this.knights[0].getMoves();
+        this.knights[1].getMoves();
+        for (let i = 0; i < this.pawns.length; i++){
+            this.pawns[i].getMoves();
+        }
+    }
+
+    clearMoves(){
+        this.king.moves = [];
+        this.queen.moves = [];
+        this.rooks[0].moves = [];
+        this.rooks[1].moves = [];
+        this.bishops[0].moves = [];
+        this.bishops[1].moves = [];
+        this.knights[0].moves = [];
+        this.knights[1].moves = [];
+        for (let i = 0; i < this.pawns.length; i++){
+            this.pawns[i].moves = [];
+        }
     }
 }
 
@@ -169,6 +211,10 @@ class gamePiece {
     addMove(moveSet, tile){
         moveSet.push(tile);
     }
+
+    getMoves(){
+
+    }
 }
 
 class Pawn extends gamePiece {
@@ -202,7 +248,7 @@ class Pawn extends gamePiece {
             }
             
         }
-        this.hasMoved = true;
+        
     }
 }
 
