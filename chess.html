@@ -15,9 +15,9 @@
 <script type="module" src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js" >
 </script>
 
-<body onload="" bgcolor="rgba(120,120,120,1)">
+<body onload="" bgcolor="rgba(15,20,15,1)">
     
-    <center><h1>lol<br><img src="./images/black_pawn.png" height=60 width=60></h1></center>
+    <center><h1>play chess<br><img src="./images/black_pawn.png" height=60 width=60></h1></center>
     <center><canvas id="myCanvas" width="480" height="480"></canvas></center>
     
 </body>
@@ -84,13 +84,10 @@
         }
     }
 
-    // test stuff
-    let p = game.whiteTeam.pawns[1];
-    p.getMoves();
+    game.whiteTeam.getAllMoves();
 
     // gaem loop
     function update() {
-        //ctx.clearRect(0, 0, cnv.width, cnv.height);
         if (game.turnOver){
             game.turnOver = false;
             game.nextTurn();
