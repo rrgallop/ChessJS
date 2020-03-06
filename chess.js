@@ -212,7 +212,17 @@ class gamePiece {
     }
 
     addMove(moveSet, tile){
-        moveSet.push(tile);
+        let moveOccupant = tile.getOccupant();
+        if (moveOccupant){
+            console.log('sorry, occupied')
+            if (moveOccupant.team != this.team) {
+                moveSet.push(tile);
+            }
+        } else {
+            moveSet.push(tile);
+        }
+
+        
     }
 
     getMoves(){
@@ -233,11 +243,7 @@ class gamePiece {
             sx += 1;
             sy += 1;
             if (moveTile = this.team.game.isViableMove(sx, sy)){
-                if (mOccupant = moveTile.getOccupant()){
-                    if (mOccupant.team == this.team) {
-                        continue;
-                    }
-                }
+                
                 this.addMove(this.moves, moveTile);
             }
         } while ((0 <= sx && sx < 8) && (0 <= sy && sy < 8) && !king && !moveTile.getOccupant());
@@ -249,11 +255,7 @@ class gamePiece {
             sx -= 1;
             sy += 1;
             if (moveTile = this.team.game.isViableMove(sx, sy)){
-                if (mOccupant = moveTile.getOccupant()){
-                    if (mOccupant.team == this.team) {
-                        continue;
-                    }
-                }
+                
                 this.addMove(this.moves, moveTile);
             }
         } while ((0 <= sx && sx < 8) && (0 <= sy && sy < 8) && !king && !moveTile.getOccupant());
@@ -265,11 +267,7 @@ class gamePiece {
             sx += 1;
             sy -= 1;
             if (moveTile = this.team.game.isViableMove(sx, sy)){
-                if (mOccupant = moveTile.getOccupant()){
-                    if (mOccupant.team == this.team) {
-                        continue;
-                    }
-                }
+                
                 this.addMove(this.moves, moveTile);
             }
         } while ((0 <= sx && sx < 8) && (0 <= sy && sy < 8) && !king && !moveTile.getOccupant());
@@ -281,11 +279,7 @@ class gamePiece {
             sx -= 1;
             sy -= 1;
             if (moveTile = this.team.game.isViableMove(sx, sy)){
-                if (mOccupant = moveTile.getOccupant()){
-                    if (mOccupant.team == this.team) {
-                        continue;
-                    }
-                }
+            
                 this.addMove(this.moves, moveTile);
             }
         } while ((0 <= sx && sx < 8) && (0 <= sy && sy < 8) && !king && !moveTile.getOccupant());
@@ -300,11 +294,7 @@ class gamePiece {
         do {
             sx += 1;
             if (moveTile = this.team.game.isViableMove(sx, sy)) {
-                if (mOccupant = moveTile.getOccupant()){
-                    if (mOccupant.team == this.team) {
-                        continue;
-                    }
-                }
+
                 this.addMove(this.moves, moveTile);
             }
         } while ((0 <= sx && sx < 8) && (0 <= sy && sy < 8) && !king && !moveTile.getOccupant());
@@ -315,11 +305,7 @@ class gamePiece {
         do {
             sx -= 1;
             if (moveTile = this.team.game.isViableMove(sx, sy)) {
-                if (mOccupant = moveTile.getOccupant()){
-                    if (mOccupant.team == this.team) {
-                        continue;
-                    }
-                }
+                
                 this.addMove(this.moves, moveTile);
             }
         } while ((0 <= sx && sx < 8) && (0 <= sy && sy < 8) && !king && !moveTile.getOccupant());
@@ -330,11 +316,7 @@ class gamePiece {
         do {
             sy += 1;
             if (moveTile = this.team.game.isViableMove(sx, sy)) {
-                if (mOccupant = moveTile.getOccupant()){
-                    if (mOccupant.team == this.team) {
-                        continue;
-                    }
-                }
+                
                 this.addMove(this.moves, moveTile);
             }
         } while ((0 <= sx && sx < 8) && (0 <= sy && sy < 8) && !king && !moveTile.getOccupant());
@@ -345,11 +327,7 @@ class gamePiece {
         do {
             sy -= 1;
             if (moveTile = this.team.game.isViableMove(sx, sy)) {
-                if (mOccupant = moveTile.getOccupant()){
-                    if (mOccupant.team == this.team) {
-                        continue;
-                    }
-                }
+                
                 this.addMove(this.moves, moveTile);
             }
         } while ((0 <= sx && sx < 8) && (0 <= sy && sy < 8) && !king && !moveTile.getOccupant());
@@ -379,7 +357,7 @@ class Pawn extends gamePiece {
         let moveTile = this.team.game.isViableMove(x,y)
         if (moveTile){
             this.addMove(this.moves, moveTile);
-            if (this.hasMoved == false) {
+            if (this.hasMoved == false && !moveTile.getOccupant()) {
                 y = y + this.dy;
                 if (moveTile = this.team.game.isViableMove(x,y)){
                     this.addMove(this.moves, moveTile);
