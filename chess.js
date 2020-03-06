@@ -72,8 +72,11 @@ class ChessGame {
     // else, if the king is ever added to a moveset of the opposing team, return false, we can't make the move
     // should also return false if a move falls outside the chessboard
     isViableMove(x, y){
-        let gotTile = this.gameBoard.getTile(x,y);
-        return gotTile;
+        if ((0 <= x && x < 8) && (0 <= y && y < 8)){
+            let gotTile = this.gameBoard.getTile(x,y);
+            return gotTile;
+        }
+        
     }
     
     
@@ -121,16 +124,16 @@ class Team {
     }
 
     clearMoves(){
-        this.king.moves = [];
-        this.queen.moves = [];
-        this.rooks[0].moves = [];
-        this.rooks[1].moves = [];
-        this.bishops[0].moves = [];
-        this.bishops[1].moves = [];
-        this.knights[0].moves = [];
-        this.knights[1].moves = [];
+        this.king.clearMoves();
+        this.queen.clearMoves();
+        this.rooks[0].clearMoves();
+        this.rooks[1].clearMoves();
+        this.bishops[0].clearMoves();
+        this.bishops[1].clearMoves();
+        this.knights[0].clearMoves();
+        this.knights[1].clearMoves();
         for (let i = 0; i < this.pawns.length; i++){
-            this.pawns[i].moves = [];
+            this.pawns[i].clearMoves();
         }
     }
 }
@@ -215,6 +218,142 @@ class gamePiece {
     getMoves(){
 
     }
+
+    clearMoves(){
+        this.moves = [];
+    }
+    getDiagonalMoves(king=false){
+
+        let sx = this.x;
+        let sy = this.y;
+        let moveTile;
+        let mOccupant;
+
+        do {
+            sx += 1;
+            sy += 1;
+            if (moveTile = this.team.game.isViableMove(sx, sy)){
+                if (mOccupant = moveTile.getOccupant()){
+                    if (mOccupant.team == this.team) {
+                        continue;
+                    }
+                }
+                this.addMove(this.moves, moveTile);
+            }
+        } while ((0 <= sx && sx < 8) && (0 <= sy && sy < 8) && !king && !moveTile.getOccupant());
+
+        sx = this.x;
+        sy = this.y;
+
+        do {
+            sx -= 1;
+            sy += 1;
+            if (moveTile = this.team.game.isViableMove(sx, sy)){
+                if (mOccupant = moveTile.getOccupant()){
+                    if (mOccupant.team == this.team) {
+                        continue;
+                    }
+                }
+                this.addMove(this.moves, moveTile);
+            }
+        } while ((0 <= sx && sx < 8) && (0 <= sy && sy < 8) && !king && !moveTile.getOccupant());
+
+        sx = this.x;
+        sy = this.y;
+
+        do {
+            sx += 1;
+            sy -= 1;
+            if (moveTile = this.team.game.isViableMove(sx, sy)){
+                if (mOccupant = moveTile.getOccupant()){
+                    if (mOccupant.team == this.team) {
+                        continue;
+                    }
+                }
+                this.addMove(this.moves, moveTile);
+            }
+        } while ((0 <= sx && sx < 8) && (0 <= sy && sy < 8) && !king && !moveTile.getOccupant());
+
+        sx = this.x;
+        sy = this.y;
+
+        do {
+            sx -= 1;
+            sy -= 1;
+            if (moveTile = this.team.game.isViableMove(sx, sy)){
+                if (mOccupant = moveTile.getOccupant()){
+                    if (mOccupant.team == this.team) {
+                        continue;
+                    }
+                }
+                this.addMove(this.moves, moveTile);
+            }
+        } while ((0 <= sx && sx < 8) && (0 <= sy && sy < 8) && !king && !moveTile.getOccupant());
+    }
+
+    getStraightMoves(king=false){
+        let sx = this.x;
+        let sy = this.y;
+        let moveTile;
+        let mOccupant;
+
+        do {
+            sx += 1;
+            if (moveTile = this.team.game.isViableMove(sx, sy)) {
+                if (mOccupant = moveTile.getOccupant()){
+                    if (mOccupant.team == this.team) {
+                        continue;
+                    }
+                }
+                this.addMove(this.moves, moveTile);
+            }
+        } while ((0 <= sx && sx < 8) && (0 <= sy && sy < 8) && !king && !moveTile.getOccupant());
+
+        sx = this.x;
+        sy = this.y;
+
+        do {
+            sx -= 1;
+            if (moveTile = this.team.game.isViableMove(sx, sy)) {
+                if (mOccupant = moveTile.getOccupant()){
+                    if (mOccupant.team == this.team) {
+                        continue;
+                    }
+                }
+                this.addMove(this.moves, moveTile);
+            }
+        } while ((0 <= sx && sx < 8) && (0 <= sy && sy < 8) && !king && !moveTile.getOccupant());
+
+        sx = this.x;
+        sy = this.y;
+
+        do {
+            sy += 1;
+            if (moveTile = this.team.game.isViableMove(sx, sy)) {
+                if (mOccupant = moveTile.getOccupant()){
+                    if (mOccupant.team == this.team) {
+                        continue;
+                    }
+                }
+                this.addMove(this.moves, moveTile);
+            }
+        } while ((0 <= sx && sx < 8) && (0 <= sy && sy < 8) && !king && !moveTile.getOccupant());
+
+        sx = this.x;
+        sy = this.y;
+
+        do {
+            sy -= 1;
+            if (moveTile = this.team.game.isViableMove(sx, sy)) {
+                if (mOccupant = moveTile.getOccupant()){
+                    if (mOccupant.team == this.team) {
+                        continue;
+                    }
+                }
+                this.addMove(this.moves, moveTile);
+            }
+        } while ((0 <= sx && sx < 8) && (0 <= sy && sy < 8) && !king && !moveTile.getOccupant());
+    }
 }
 
 class Pawn extends gamePiece {
@@ -264,6 +403,10 @@ class Bishop extends gamePiece {
             this.img.src = './images/black_bishop.png';
         }
     }
+
+    getMoves(king=false){
+        this.getDiagonalMoves();
+    }
 }
 
 class Knight extends gamePiece {
@@ -278,6 +421,40 @@ class Knight extends gamePiece {
             this.img.src = './images/black_knight.png';
         }
     }
+
+    getMoves(){
+        let sx = this.x;
+        let sy = this.y;
+        let moveTile;
+
+        if (moveTile = this.team.game.isViableMove(sx+2, sy+1)){
+            this.addMove(this.moves, moveTile);
+        }
+        if (moveTile = this.team.game.isViableMove(sx+2, sy-1)){
+            this.addMove(this.moves, moveTile);
+        }
+        if (moveTile = this.team.game.isViableMove(sx-2, sy+1)){
+            this.addMove(this.moves, moveTile);
+        }
+        if (moveTile = this.team.game.isViableMove(sx-2, sy-1)){
+            this.addMove(this.moves, moveTile);
+        }
+        if (moveTile = this.team.game.isViableMove(sx+1, sy+2)){
+            this.addMove(this.moves, moveTile);
+        }
+        if (moveTile = this.team.game.isViableMove(sx+1, sy-2)){
+            this.addMove(this.moves, moveTile);
+        }
+        if (moveTile = this.team.game.isViableMove(sx-1, sy+2)){
+            this.addMove(this.moves, moveTile);
+        }
+        if (moveTile = this.team.game.isViableMove(sx-1, sy-2)){
+            this.addMove(this.moves, moveTile);
+        }
+
+    }
+
+
 }
 
 class Rook extends gamePiece {
@@ -291,6 +468,10 @@ class Rook extends gamePiece {
             this.img = new Image();
             this.img.src = './images/black_rook.png';
         }
+    }
+
+    getMoves(){
+        this.getStraightMoves();
     }
 }
 
@@ -306,6 +487,12 @@ class King extends gamePiece {
             this.img.src = './images/black_king.png';
         }
     }
+
+    getMoves(){
+        let king = true;
+        this.getDiagonalMoves(king);
+        this.getStraightMoves(king);
+    }
 }
 
 class Queen extends gamePiece {
@@ -319,5 +506,10 @@ class Queen extends gamePiece {
             this.img = new Image();
             this.img.src = './images/black_queen.png';
         }
+    }
+
+    getMoves(){
+        this.getDiagonalMoves();
+        this.getStraightMoves();
     }
 }
