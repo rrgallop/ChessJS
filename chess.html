@@ -78,6 +78,11 @@
                 HELD_UNIT.hasMoved = true;
                 game.turnOver = true;
             }
+            else if (HELD_UNIT.captures.includes(HOVERTILE)){
+                HELD_UNIT.moveTo(game.gameBoard, HOVERTILE.x, HOVERTILE.y);
+                HELD_UNIT.hasMoved = true;
+                game.turnOver = true;
+            }
             HELD_UNIT.isHeld = false;
             HELD_UNIT = null;
             
@@ -94,7 +99,6 @@
         }
         for(var x = 0; x < X; x++){
             for (var y=0; y < Y; y++){
-                //console.log('yeahhh')
                 let curTile = game.gameBoard.getTile(x,y);
                 let gamePiece = curTile.getOccupant();
                 
@@ -108,7 +112,7 @@
                 if (HOVERTILE){
                     ctx.beginPath();
                     ctx.lineWidth = 1;
-                    ctx.strokeStyle = "red";
+                    ctx.strokeStyle = "yellow";
                     ctx.rect(TILESIZE*HOVERTILE.x, TILESIZE*HOVERTILE.y, TILESIZE, TILESIZE);
                     ctx.stroke();
                     ctx.closePath();
@@ -121,11 +125,24 @@
                 }
                 if (HELD_UNIT) {
                     ctx.drawImage(HELD_UNIT.img, mx, my, TILESIZE, TILESIZE);
+
+                    // draw move tiles
                     for (let i = 0; i < HELD_UNIT.moves.length; i++){
                         let m = HELD_UNIT.moves[i];
                         ctx.beginPath();
                         ctx.lineWidth = 3;
                         ctx.strokeStyle = "green";
+                        ctx.rect(TILESIZE*m.x, TILESIZE*m.y, TILESIZE, TILESIZE);
+                        ctx.stroke();
+                        ctx.closePath();
+                    }
+
+                    // draw capture tiles
+                    for (let i = 0; i < HELD_UNIT.captures.length; i++){
+                        let m = HELD_UNIT.captures[i];
+                        ctx.beginPath();
+                        ctx.lineWidth = 3;
+                        ctx.strokeStyle = "red";
                         ctx.rect(TILESIZE*m.x, TILESIZE*m.y, TILESIZE, TILESIZE);
                         ctx.stroke();
                         ctx.closePath();
