@@ -137,58 +137,93 @@ class Team {
 
 
     getAllMoves(){
-        this.king.getMoves();
-        this.queen.getMoves();
-        this.rooks[0].getMoves();
-        this.rooks[1].getMoves();
-        this.bishops[0].getMoves();
-        this.bishops[1].getMoves();
-        this.knights[0].getMoves();
-        this.knights[1].getMoves();
+        if (this.king.active){
+            this.king.getMoves();
+        }
+        if (this.queen.active){
+            this.queen.getMoves();
+        }
+        if (this.rooks[0].active){
+            this.rooks[0].getMoves();
+        }
+        if (this.rooks[1].active){
+            this.rooks[1].getMoves();
+        }
+        if (this.bishops[0].active){
+            this.bishops[0].getMoves();
+        }
+        if (this.bishops[1].active){
+            this.bishops[1].getMoves();
+        }
+        if (this.knights[0].active){
+            this.knights[0].getMoves();
+        }
+        if (this.knights[1].active){
+            this.knights[1].getMoves();
+        }
         for (let i = 0; i < this.pawns.length; i++){
-            this.pawns[i].getMoves();
+            if (this.pawns[i].active){
+                this.pawns[i].getMoves();
+            }
         }
     }
 
     getAllShadowMoves(shadowboard){
         let moveIsSafe = true;
-        console.log('spooky');
-        moveIsSafe = this.king.getShadowMoves(shadowboard);
-        if (!moveIsSafe){
-            return false;
-        }
-        moveIsSafe = this.queen.getShadowMoves(shadowboard);
-        if (!moveIsSafe){
-            return false;
-        }
-        moveIsSafe = this.rooks[0].getShadowMoves(shadowboard);
-        if (!moveIsSafe){
-            return false;
-        }
-        moveIsSafe = this.rooks[1].getShadowMoves(shadowboard)
-        if (!moveIsSafe){
-            return false;
-        }
-        moveIsSafe = this.bishops[0].getShadowMoves(shadowboard);
-        if (!moveIsSafe){
-            return false;
-        }
-        moveIsSafe = this.bishops[1].getShadowMoves(shadowboard);
-        if (!moveIsSafe){
-            return false;
-        }
-        moveIsSafe = this.knights[0].getShadowMoves(shadowboard);
-        if (!moveIsSafe){
-            return false;
-        }
-        moveIsSafe = this.knights[1].getShadowMoves(shadowboard);
-        if (!moveIsSafe){
-            return false;
-        }
-        for (let i = 0; i < this.pawns.length; i++){
-            moveIsSafe = this.pawns[i].getShadowMoves(shadowboard);
+        if (this.king.active){
+            moveIsSafe = this.king.getShadowMoves(shadowboard);
             if (!moveIsSafe){
                 return false;
+            }
+        }
+        if (this.queen.active){
+            moveIsSafe = this.queen.getShadowMoves(shadowboard);
+            if (!moveIsSafe){
+                return false;
+            }
+        }
+        if (this.rooks[0].active){
+            moveIsSafe = this.rooks[0].getShadowMoves(shadowboard);
+            if (!moveIsSafe){
+                return false;
+            }
+        }
+        if (this.rooks[1].active){
+            moveIsSafe = this.rooks[1].getShadowMoves(shadowboard)
+            if (!moveIsSafe){
+                return false;
+            }
+        }
+        if (this.bishops[0].active){
+            moveIsSafe = this.bishops[0].getShadowMoves(shadowboard);
+            if (!moveIsSafe){
+                return false;
+            }
+        }
+        if (this.bishops[1].active){
+            moveIsSafe = this.bishops[1].getShadowMoves(shadowboard);
+            if (!moveIsSafe){
+                return false;
+            }
+        }
+        if (this.knights[0].active){    
+            moveIsSafe = this.knights[0].getShadowMoves(shadowboard);
+            if (!moveIsSafe){
+                return false;
+            }
+        }
+        if (this.knights[1].active){    
+            moveIsSafe = this.knights[1].getShadowMoves(shadowboard);
+            if (!moveIsSafe){
+                return false;
+            }
+        }
+        for (let i = 0; i < this.pawns.length; i++){
+            if (this.pawns[i].active){
+                moveIsSafe = this.pawns[i].getShadowMoves(shadowboard);
+                if (!moveIsSafe){
+                    return false;
+                }
             }
         }
 
@@ -326,17 +361,17 @@ class gamePiece {
         this.x = x;
         this.y = y;
         const tile = chessBoard.getTile(x,y);
-        tile.setOccupant(this);
         if (occupant = tile.getOccupant()){
             occupant.active = false;
         }
+        tile.setOccupant(this);
+        
     }
 
     // moveSet: pass this.shadowCaptures to handle shadowBoard 
     addMove(moveSet, tile){
         let moveOccupant = tile.getOccupant();
         if (moveOccupant){
-            console.log('sorry, occupied')
             if (moveOccupant.team != this.team) {
                 moveSet.push(tile);
             }
