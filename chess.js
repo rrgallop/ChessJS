@@ -695,13 +695,11 @@ class Pawn extends gamePiece {
             if (capture){
                 if (capture.king == true && capture.team != this.team) {
                     return false;
-                } else {
-                    this.shadowCaptures.push(capture);
                 }
             }
         }
 
-        dx = 1;
+        dx = -1;
         x = this.x + dx;
         captureTile = shadowboard.getTile(x,y);
         if (captureTile) {
@@ -709,9 +707,7 @@ class Pawn extends gamePiece {
             if (capture){
                 if (capture.king == true && capture.team != this.team) {
                     return false;
-                } else {
-                    this.shadowCaptures.push(capture);
-                }
+                } 
             }
         }
 
