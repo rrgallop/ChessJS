@@ -46,9 +46,27 @@
     document.addEventListener("mousemove", mouseMoveHandler, false);
     document.addEventListener("mousedown", mouseOnClick, false);
     document.addEventListener("mouseup", mouseOnRelease, false);
+    document.addEventListener("touchstart", touchStart, false);
+
+
     setInterval(update);
 
     function mouseMoveHandler(e) {
+        mx = e.pageX - cnv.offsetLeft;
+        my = e.pageY - cnv.offsetTop;
+        if ((0 < mx && mx < cnv.width) && (0 < my && my < 480)){
+            HOVERTILE = game.gameBoard.getTile(Math.floor(mx/TILESIZE), Math.floor(my/TILESIZE));
+            HOVER_OCCUPANT = HOVERTILE.getOccupant();
+            
+        }
+        else {
+            HOVERTILE = null;
+            HOVER_OCCUPANT = null;
+
+        }
+    }
+    
+    function touchMoveHandler(e) {
         mx = e.pageX - cnv.offsetLeft;
         my = e.pageY - cnv.offsetTop;
         if ((0 < mx && mx < cnv.width) && (0 < my && my < 480)){
@@ -71,6 +89,30 @@
 
         }
     }
+
+    function touchStart(e) {
+        if (HELD_UNIT){
+            if (HELD_UNIT.moves.includes(HOVERTILE)){
+                HELD_UNIT.moveTo(game.gameBoard, HOVERTILE.x, HOVERTILE.y);
+                HELD_UNIT.hasMoved = true;
+                game.turnOver = true;
+            }
+            else if (HELD_UNIT.captures.includes(HOVERTILE)){
+                HELD_UNIT.moveTo(game.gameBoard, HOVERTILE.x, HOVERTILE.y);
+                HELD_UNIT.hasMoved = true;
+                game.turnOver = true;
+            }
+            HELD_UNIT.isHeld = false;
+            HELD_UNIT = null;
+        }
+        if (HOVER_OCCUPANT) {
+            
+            HOVER_OCCUPANT.isHeld = true;
+            HELD_UNIT = HOVER_OCCUPANT;
+
+        }
+    }
+
     function mouseOnRelease(e){
         if (HELD_UNIT){
             if (HELD_UNIT.moves.includes(HOVERTILE)){
@@ -88,6 +130,8 @@
             
         }
     }
+
+
 
     game.whiteTeam.getAllMoves();
 
@@ -124,7 +168,7 @@
 
                 }
                 if (HELD_UNIT) {
-                    ctx.drawImage(HELD_UNIT.img, mx, my, TILESIZE, TILESIZE);
+                    ctx.drawImage(HELD_UNIT.img, mx-(TILESIZE/2), my-(TILESIZE/2), TILESIZE, TILESIZE);
 
                     // draw move tiles
                     for (let i = 0; i < HELD_UNIT.moves.length; i++){

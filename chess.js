@@ -10,12 +10,6 @@ class ChessGame {
         this.setBoard();
     }
 
-    copyBoardState(fromBoard, toBoard){
-        let copyBoard = new chessBoard();
-        copyBoard.tiles = fromBoard.tiles;
-        toBoard.tiles = copyBoard.tiles;
-    }
-
     setBoard(chessBoard){
         // place pawns
         for (let i = 0; i < 8; i++){
@@ -69,7 +63,14 @@ class ChessGame {
     shadowMoveCheck(gamePiece,x,y){
 
         let shadowBoard = new chessBoard;
+        shadowBoard.shadowWhite = new ShadowTeam(shadowBoard);
+        shadowBoard.shadowBlack = new ShadowTeam(shadowBoard);
+
         shadowBoard.copyBoard(this.gameBoard);
+
+        if (gamePiece.type == 'queen'){
+            console.log('farts');
+        }
 
         // get the shadow piece on the shadowboard
         let shadow_startTile = shadowBoard.getTile(gamePiece.x, gamePiece.y);
@@ -80,9 +81,9 @@ class ChessGame {
 
         let moveIsSafe = true;
         if (this.whitesTurn){
-            moveIsSafe = this.blackTeam.getAllShadowMoves(shadowBoard);
+            moveIsSafe = shadowBoard.shadowBlack.getAllShadowMoves(shadowBoard);
         } else {
-            moveIsSafe = this.whiteTeam.getAllShadowMoves(shadowBoard);
+            moveIsSafe = shadowBoard.shadowWhite.getAllShadowMoves(shadowBoard);
         }
 
         return moveIsSafe;
@@ -108,66 +109,72 @@ class ChessGame {
     
 }
 
-class Team {
-    constructor(game, playerNum){
-        this.game = game;
-        this.player = playerNum;
-        this.king = new King(this, game);
-        this.queen = new Queen(this, game);
+class ShadowTeam {
+    constructor(board){
+        this.king = null;
+        this.queen = null;
         this.rooks = Array(2);
         this.bishops = Array(2);
         this.knights = Array(2);
         this.pawns = Array(8);
-        
-        let i;
-        
-        for (i = 0; i < this.rooks.length; i++){
-            this.rooks[i] = new Rook(this, game);
-        }
-        for (i = 0; i < this.bishops.length; i++){
-            this.bishops[i] = new Bishop(this, game);
-        }
-        for (i = 0; i < this.knights.length; i++){
-            this.knights[i] = new Knight(this, game);
-        }
-        for (i = 0; i < this.pawns.length; i++){
-            this.pawns[i] = new Pawn(this, game);
-        } 
+        this.shadowBoard = board;
     }
 
+    copyTeam(fromTeam){
 
-    getAllMoves(){
+        let moveTile;
+        let i;
+        this.king = new King(this);
+        this.king.active = fromTeam.king.active;
+        this.king.hasMoved = fromTeam.king.hasMoved;
         if (this.king.active){
-            this.king.getMoves();
+            this.king.moveTo(this.shadowBoard, fromTeam.king.x, fromTeam.king.y);
         }
+
+        this.queen = new Queen(this);
+        this.queen.active = fromTeam.queen.active;
+        this.queen.hasMoved = fromTeam.queen.hasMoved;
         if (this.queen.active){
-            this.queen.getMoves();
+            this.queen.moveTo(this.shadowBoard, fromTeam.queen.x, fromTeam.queen.y);
         }
-        if (this.rooks[0].active){
-            this.rooks[0].getMoves();
-        }
-        if (this.rooks[1].active){
-            this.rooks[1].getMoves();
-        }
-        if (this.bishops[0].active){
-            this.bishops[0].getMoves();
-        }
-        if (this.bishops[1].active){
-            this.bishops[1].getMoves();
-        }
-        if (this.knights[0].active){
-            this.knights[0].getMoves();
-        }
-        if (this.knights[1].active){
-            this.knights[1].getMoves();
-        }
-        for (let i = 0; i < this.pawns.length; i++){
-            if (this.pawns[i].active){
-                this.pawns[i].getMoves();
+
+        for (i = 0; i < fromTeam.rooks.length; i++){
+            this.rooks[i] = new Rook(this);
+            this.rooks[i].active = fromTeam.rooks[i].active;
+            this.rooks[i].hasMoved = fromTeam.rooks[i].hasMoved;
+            if (this.rooks[i].active) {
+                this.rooks[i].moveTo(this.shadowBoard, fromTeam.rooks[i].x, fromTeam.rooks[i].y);
             }
         }
+        for (i = 0; i < fromTeam.bishops.length; i++){
+            this.bishops[i] = new Bishop(this);
+            this.bishops[i].active = fromTeam.bishops[i].active;
+            this.bishops[i].hasMoved = fromTeam.bishops[i].hasMoved;
+            if (this.bishops[i].active){
+                this.bishops[i].moveTo(this.shadowBoard, fromTeam.bishops[i].x, fromTeam.bishops[i].y);
+            }
+        }
+        for (i = 0; i < fromTeam.knights.length; i++){
+            this.knights[i] = new Knight(this);
+            this.knights[i].active = fromTeam.knights[i].active;
+            this.knights[i].hasMoved = fromTeam.knights[i].hasMoved;
+            if (this.knights[i].active){
+                this.knights[i].moveTo(this.shadowBoard, fromTeam.knights[i].x, fromTeam.knights[i].y);
+            }
+           
+        }
+        for (i = 0; i < fromTeam.pawns.length; i++){
+            this.pawns[i] = new Pawn(this);
+            this.pawns[i].active = fromTeam.pawns[i].active;
+            this.pawns[i].hasMoved = fromTeam.pawns[i].hasMoved;
+            if (this.pawns[i].active){
+                this.pawns[i].moveTo(this.shadowBoard, fromTeam.pawns[i].x, fromTeam.pawns[i].y);
+            }
+        } 
+        
     }
 
+    
     getAllShadowMoves(shadowboard){
         let moveIsSafe = true;
         if (this.king.active){
@@ -229,6 +236,70 @@ class Team {
 
         return moveIsSafe;
     }
+}
+
+class Team {
+    constructor(game, playerNum){
+        this.game = game;
+        this.player = playerNum;
+        this.king = new King(this, game);
+        this.queen = new Queen(this, game);
+        this.rooks = Array(2);
+        this.bishops = Array(2);
+        this.knights = Array(2);
+        this.pawns = Array(8);
+        
+        let i;
+        
+        for (i = 0; i < this.rooks.length; i++){
+            this.rooks[i] = new Rook(this, game);
+        }
+        for (i = 0; i < this.bishops.length; i++){
+            this.bishops[i] = new Bishop(this, game);
+        }
+        for (i = 0; i < this.knights.length; i++){
+            this.knights[i] = new Knight(this, game);
+        }
+        for (i = 0; i < this.pawns.length; i++){
+            this.pawns[i] = new Pawn(this, game);
+        } 
+    }
+
+    
+
+    getAllMoves(){
+        if (this.king.active){
+            this.king.getMoves();
+        }
+        if (this.queen.active){
+            this.queen.getMoves();
+        }
+        if (this.rooks[0].active){
+            this.rooks[0].getMoves();
+        }
+        if (this.rooks[1].active){
+            this.rooks[1].getMoves();
+        }
+        if (this.bishops[0].active){
+            this.bishops[0].getMoves();
+        }
+        if (this.bishops[1].active){
+            this.bishops[1].getMoves();
+        }
+        if (this.knights[0].active){
+            this.knights[0].getMoves();
+        }
+        if (this.knights[1].active){
+            this.knights[1].getMoves();
+        }
+        for (let i = 0; i < this.pawns.length; i++){
+            if (this.pawns[i].active){
+                this.pawns[i].getMoves();
+            }
+        }
+    }
+
+    
 
 
     clearMoves(){
@@ -246,13 +317,14 @@ class Team {
     }
 }
 
-
 // want 2 chessboards. one for moves and one to think about moves.
 class chessBoard{
     constructor(game){
         let tiles = new Array(8);
         this.game = game;
         this.tiles = tiles;
+        this.shadowWhite = null;
+        this.shadowBlack = null;
         for (let i = 0; i < 8; i++){
             this.tiles[i] = new Array(8);
         }
@@ -275,42 +347,69 @@ class chessBoard{
     copyBoard(chessBoard){
         let tileOccupant;
         let shadowOccupant;
+        
+        let p = 0;
+        let b = 0;
+        let r = 0;
+        let k = 0;
+
+        let pp = 0;
+        let bb = 0;
+        let rr = 0;
+        let kk = 0;
+        
         for (let x=0; x < this.tiles.length; x++){
             for (let y=0; y < this.tiles[x].length; y++){
                 this.tiles[x][y].x = chessBoard.x;
                 this.tiles[x][y].y = chessBoard.y;
                 this.tiles[x][y].selected = false;
-                let tile = chessBoard.getTile(x,y);
-                tileOccupant = tile.getOccupant();
-                if (tileOccupant){
-                    if (tileOccupant.type == 'pawn'){
-                        shadowOccupant = new Pawn(tileOccupant.team);
-                        shadowOccupant.moveTo(this, x, y);
-                    }
-                    else if (tileOccupant.type == 'bishop'){
-                        shadowOccupant = new Bishop(tileOccupant.team);
-                        shadowOccupant.moveTo(this, x, y);
-                    }
-                    else if (tileOccupant.type == 'knight'){
-                        shadowOccupant = new Knight(tileOccupant.team);
-                        shadowOccupant.moveTo(this, x, y);
-                    }
-                    else if (tileOccupant.type == 'rook'){
-                        shadowOccupant = new Rook(tileOccupant.team);
-                        shadowOccupant.moveTo(this, x, y);
-                    }
-                    else if (tileOccupant.type == 'king'){
-                        shadowOccupant = new King(tileOccupant.team);
-                        shadowOccupant.moveTo(this, x, y);
-                    }
-                    else if (tileOccupant.type == 'queen'){
-                        shadowOccupant = new Queen(tileOccupant.team);
-                        shadowOccupant.moveTo(this, x, y);
-                    }
-                    
-                
-                }
+                // let tile = chessBoard.getTile(x,y);
+                // tileOccupant = tile.getOccupant();
+                // if (tileOccupant){
+                //     if (tileOccupant.type == 'pawn'){
+                //         if (tileOccupant.player == 1){
+                //             shadowOccupant = this.shadowWhite.pawns[p++];
+                //         } else {
+                //             shadowOccupant = this.shadowBlack.pawns[pp++];
+                //         }
+                //         shadowOccupant.moveTo(this, x, y);
+                //     }
+                //     else if (tileOccupant.type == 'bishop'){
+                //         if (tileOccupant.player == 1) {  // white team
+                //             shadowOccupant = this.shadowWhite.bishops[b++];
+                //         } else {  // black team
+                //             shadowOccupant = this.shadowBlack.bishops[bb++];
+                //         }
+                //         shadowOccupant.moveTo(this, x, y);
+                //     }
+                //     else if (tileOccupant.type == 'knight'){
+                //         if (tileOccupant.player == 1) {  // white team
+                //             shadowOccupant = this.shadowWhite.knights[k++];
+                //         } else {  // black team
+                //             shadowOccupant = this.shadowBlack.knights[kk++];
+                //         }
+                //         shadowOccupant.moveTo(this, x, y);
+                //     }
+                //     else if (tileOccupant.type == 'rook'){
+                //         if (tileOccupant.player == 1) {  // white team
+                //             shadowOccupant = this.shadowWhite.rooks[r++];
+                //         } else {  // black team
+                //             shadowOccupant = this.shadowBlack.rooks[rr++];
+                //         }
+                //         shadowOccupant.moveTo(this, x, y);
+                //     }
+                //     else if (tileOccupant.type == 'king'){
+                //         shadowOccupant = new King(tileOccupant.team);
+                //         shadowOccupant.moveTo(this, x, y);
+                //     }
+                //     else if (tileOccupant.type == 'queen'){
+                //         shadowOccupant = new Queen(tileOccupant.team);
+                //         shadowOccupant.moveTo(this, x, y);
+                //     }
+                // }
             }
+            this.shadowWhite.copyTeam(chessBoard.game.whiteTeam);
+            this.shadowBlack.copyTeam(chessBoard.game.blackTeam);
         }
     }
 
@@ -363,6 +462,7 @@ class gamePiece {
         const tile = chessBoard.getTile(x,y);
         if (occupant = tile.getOccupant()){
             occupant.active = false;
+            occupant.clearMoves();
         }
         tile.setOccupant(this);
         
