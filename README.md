@@ -1,4 +1,8 @@
 # ChessJS
-Learned some things building chess in python, and figured it'd be fun to take a crack at designing the game again in a new language. In this project I've implemented enforcement of check, so only moves that will not put your king in jeoprady are considered valid. Some future goals for this project would be optimizing the code and implementing AI. Currently, the code generates a whole new chessboard for every move it's thinking about, which is proving to be a lot of work. I'd like to cut down on that. But I think the approach of generating new boards will be useful when it comes to implementing AI, so perhaps the code still has some applications down the road.
+Learned some things building chess in python, and figured it'd be fun to take a crack at designing the game again in a new language. In this project I've implemented enforcement of check, so only moves that will not put your king in jeoprady are considered valid. 
 
-Currently this is a single player toy more than anything, and a learning exercise for me. That said, the game is fully playable. The only caveat is that, for now, en passant and castling are not implemented. That's probably coming soon.
+In the future I would like to make some performance improvements. There are also a couple legal moves that you can't perform on this chessboard that I would like to implement (en passant and castling). 
+
+Otherwise, this was a fun project to implement that you are welcome to play with.
+
+https://rrgallop.github.io/chess
